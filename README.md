@@ -1,453 +1,975 @@
-#**SocialWeb**
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatConnect - Pesan Singkat Cepat</title>
+    <title>ChatConnect - Kirim Pesan Singkat</title>
+    <!-- Menggunakan FontAwesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* --- 1. CSS VARIABLES & RESET --- */
         :root {
-            --primary-color: #00a884; /* Warna hijau khas aplikasi chat */
-            --bg-body: #d1d7db;
-            --bg-sidebar: #ffffff;
-            --bg-chat: #efeae2;
-            --message-out: #d9fdd3;
-            --message-in: #ffffff;
-            --text-primary: #111b21;
-            --text-secondary: #667781;
+            --primary-color: #008069; /* Warna hijau ala aplikasi chat populer */
+            --primary-light: #25D366;
+            --bg-color: #e9edef;
+            --sidebar-bg: #ffffff;
+            --text-dark: #111b21;
+            --text-gray: #54656f;
             --border-color: #e9edef;
+            --white: #ffffff;
             --danger: #ef5350;
+            --shadow: 0 2px 5px rgba(0,0,0,0.05);
+            --transition: all 0.3s ease;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
-        body { background-color: var(--bg-body); height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        
-        /* --- 2. LAYOUT UTAMA --- */
-        .app-container {
-            width: 100%; height: 100%;
-            max-width: 1400px;
-            background: white;
+        /* Aksesibilitas: Mode Kontras Tinggi (Aktif via JS) */
+        body.high-contrast {
+            --primary-color: #004d40;
+            --bg-color: #000000;
+            --sidebar-bg: #121212;
+            --text-dark: #ffffff;
+            --text-gray: #eeeeee;
+            --border-color: #333333;
+            --white: #1e1e1e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            height: 100vh;
             display: flex;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             overflow: hidden;
         }
-        
-        @media (min-width: 1000px) { .app-container { height: 95vh; width: 95vw; border-radius: 0; } }
 
-        /* --- 3. SIDEBAR (MENU) --- */
+        /* --- Sidebar Navigasi --- */
         .sidebar {
-            width: 350px;
-            background: var(--bg-sidebar);
+            width: 300px;
+            background-color: var(--sidebar-bg);
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            transition: transform 0.3s ease;
+            transition: var(--transition);
+            z-index: 100;
         }
-        
-        .sidebar-header {
-            padding: 15px 20px;
-            background: #f0f2f5;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .user-avatar { width: 40px; height: 40px; background: #ccc; border-radius: 50%; cursor: pointer; }
-        .nav-icons { display: flex; gap: 15px; color: var(--text-secondary); cursor: pointer; }
 
-        .menu-list { overflow-y: auto; flex: 1; }
-        .menu-item {
-            padding: 15px 20px;
+        .brand {
+            padding: 20px;
+            background-color: var(--primary-color);
+            color: white;
             display: flex;
             align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .nav-category {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--primary-color);
+            padding: 15px 20px 5px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        
+        body.high-contrast .nav-category {
+            color: var(--primary-light);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
             cursor: pointer;
-            border-bottom: 1px solid #f5f5f5;
-            transition: 0.2s;
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: background 0.2s;
+            font-size: 0.95rem;
+            border-left: 4px solid transparent;
         }
-        .menu-item:hover { background-color: #f5f6f6; }
-        .menu-item i { margin-right: 15px; width: 20px; text-align: center; color: var(--text-secondary); }
-        .menu-text { font-size: 15px; color: var(--text-primary); }
-        .active-menu { background-color: #f0f2f5; border-left: 4px solid var(--primary-color); }
 
-        /* --- 4. MAIN CONTENT AREA --- */
+        .nav-item:hover {
+            background-color: rgba(0, 128, 105, 0.1);
+        }
+
+        .nav-item.active {
+            background-color: rgba(0, 128, 105, 0.1);
+            border-left-color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .nav-item i {
+            width: 25px;
+            color: var(--text-gray);
+            margin-right: 10px;
+        }
+
+        .nav-item.active i {
+            color: var(--primary-color);
+        }
+
+        /* --- Main Content Area --- */
         .main-content {
             flex: 1;
-            background: var(--bg-chat);
+            display: flex;
+            flex-direction: column;
             position: relative;
+            background-image: url('https://picsum.photos/seed/bgpattern/800/600?blur=5'); /* Pattern background subtle */
+            background-size: cover;
+            background-blend-mode: overlay;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        body.high-contrast .main-content {
+            background-blend-mode: normal;
+            background-color: var(--sidebar-bg);
+            background-image: none;
+        }
+
+        /* Header Mobile */
+        .mobile-header {
+            display: none;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Sections (Pages) */
+        .section {
+            display: none; /* Hidden by default */
+            flex: 1;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .section.active-section {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Components Styles --- */
+        h2 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        /* --- Home: Chat Interface --- */
+        #section-home {
+            padding: 0;
+            display: none; /* Controlled by JS */
+            flex-direction: row;
+            overflow: hidden;
+        }
+        #section-home.active-section {
+            display: flex;
+        }
+
+        .chat-list {
+            width: 350px;
+            background: var(--white);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
         }
 
-        /* Tampilan Chat (Home) */
-        .chat-header {
-            padding: 10px 20px;
-            background: #f0f2f5;
+        .chat-item {
             display: flex;
             align-items: center;
+            padding: 15px;
             border-bottom: 1px solid var(--border-color);
-            height: 60px;
+            cursor: pointer;
         }
-        .chat-area {
+
+        .chat-item:hover, .chat-item.active-chat {
+            background-color: #f0f2f5;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+            background-color: #ddd;
+        }
+
+        .chat-info h4 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .chat-info p {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .chat-window {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #efe7dd; /* Warna background chat klasik */
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* Pattern WA */
+            position: relative;
+        }
+
+        .chat-messages {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
-            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* Pattern background */
-            background-repeat: repeat;
-            opacity: 0.9;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
+
         .message {
             max-width: 60%;
-            padding: 8px 12px;
-            margin-bottom: 10px;
+            padding: 10px 15px;
             border-radius: 8px;
-            font-size: 14px;
-            line-height: 1.4;
             position: relative;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            font-size: 0.95rem;
+            line-height: 1.4;
         }
-        .msg-in { background: var(--message-in); align-self: flex-start; float: left; clear: both; }
-        .msg-out { background: var(--message-out); align-self: flex-end; float: right; clear: both; }
-        .msg-time { font-size: 10px; color: var(--text-secondary); float: right; margin-top: 5px; margin-left: 10px; }
+
+        .message.received {
+            background-color: var(--white);
+            align-self: flex-start;
+            border-top-left-radius: 0;
+        }
+
+        .message.sent {
+            background-color: #dcf8c6;
+            align-self: flex-end;
+            border-top-right-radius: 0;
+        }
+        
+        body.high-contrast .message.sent {
+            background-color: #004d40;
+            color: white;
+        }
+        
+        body.high-contrast .message.received {
+            background-color: #333;
+            color: white;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--text-gray);
+            float: right;
+            margin-top: 5px;
+            margin-left: 10px;
+        }
 
         .chat-input-area {
+            background: var(--bg-color);
             padding: 10px 20px;
-            background: #f0f2f5;
             display: flex;
             align-items: center;
             gap: 10px;
         }
+
         .chat-input {
             flex: 1;
             padding: 12px;
-            border: none;
-            border-radius: 8px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
             outline: none;
-            font-size: 15px;
         }
+
         .btn-send {
-            background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
         }
-        .btn-send:hover { color: var(--primary-color); }
 
-        /* Tampilan Halaman Settings/Lainnya */
-        .page-section {
-            display: none; /* Hidden by default */
-            padding: 40px;
-            background: white;
-            height: 100%;
-            overflow-y: auto;
-            animation: fadeIn 0.3s;
+        .btn-send:hover {
+            transform: scale(1.1);
         }
-        .page-section.active { display: block; }
-        .page-title { font-size: 24px; margin-bottom: 20px; color: var(--primary-color); border-bottom: 2px solid #eee; padding-bottom: 10px;}
-        
-        .settings-group { margin-bottom: 25px; }
-        .settings-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 0; border-bottom: 1px solid #f0f0f0;
+
+        /* --- Forms & Settings --- */
+        .form-group {
+            margin-bottom: 20px;
         }
-        .settings-label { font-weight: 500; color: var(--text-primary); }
-        .settings-desc { font-size: 12px; color: var(--text-secondary); display: block; margin-top: 4px; }
-        
-        /* Elements */
-        input[type="checkbox"] { transform: scale(1.2); accent-color: var(--primary-color); }
-        select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
-        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn-primary { background: var(--primary-color); color: white; }
-        .btn-danger { background: var(--danger); color: white; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
 
-        /* RESPONSIVE MOBILE */
-        .mobile-toggle { display: none; font-size: 24px; cursor: pointer; margin-right: 15px; }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
         
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Responsive Mobile */
         @media (max-width: 768px) {
-            .app-container { flex-direction: column; height: 100vh; width: 100vw; }
-            .sidebar { 
-                position: absolute; z-index: 100; height: 100%; width: 80%; 
-                transform: translateX(-100%); box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+            .sidebar {
+                position: fixed;
+                left: -300px;
+                height: 100%;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.2);
             }
-            .sidebar.open { transform: translateX(0); }
-            .mobile-toggle { display: block; }
-            .chat-header { padding-left: 10px; }
+            
+            .sidebar.open {
+                left: 0;
+            }
+
+            .mobile-header {
+                display: flex;
+            }
+
+            .chat-list {
+                width: 100%;
+                display: none;
+            }
+
+            .chat-list.active {
+                display: flex;
+            }
+
+            .chat-window {
+                display: none;
+            }
+
+            .chat-window.active {
+                display: flex;
+                width: 100%;
+            }
+            
+            #section-home {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Berhasil disimpan</div>
+
+    <!-- Header Mobile -->
+    <header class="mobile-header">
+        <i class="fas fa-bars fa-lg" onclick="toggleSidebar()"></i>
+        <span>ChatConnect</span>
+        <div style="width: 24px;"></div> <!-- Spacer for balance -->
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="brand">
+            <i class="fas fa-comments"></i> ChatConnect
+        </div>
+
+        <div class="nav-menu">
+            <div class="nav-category">Utama</div>
+            <a onclick="showSection('home')" class="nav-item active" id="nav-home">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a onclick="showSection('profile')" class="nav-item" id="nav-profile">
+                <i class="fas fa-user"></i> Profil
+            </a>
+            <a onclick="showSection('about')" class="nav-item" id="nav-about">
+                <i class="fas fa-info-circle"></i> Tentang Kami
+            </a>
+
+            <div class="nav-category">Pengaturan</div>
+            <a onclick="showSection('notifications')" class="nav-item" id="nav-notifications">
+                <i class="fas fa-bell"></i> Notifikasi
+            </a>
+            <a onclick="showSection('privacy')" class="nav-item" id="nav-privacy">
+                <i class="fas fa-lock"></i> Privasi
+            </a>
+            <a onclick="showSection('data')" class="nav-item" id="nav-data">
+                <i class="fas fa-database"></i> Penyimpanan Data
+            </a>
+            <a onclick="showSection('language')" class="nav-item" id="nav-language">
+                <i class="fas fa-globe"></i> Bahasa
+            </a>
+            <a onclick="showSection('accessibility')" class="nav-item" id="nav-accessibility">
+                <i class="fas fa-universal-access"></i> Aksesibilitas
+            </a>
+            <a onclick="showSection('updates')" class="nav-item" id="nav-updates">
+                <i class="fas fa-download"></i> Pembaharuan Aplikasi
+            </a>
+
+            <div class="nav-category">Dukungan</div>
+            <a onclick="showSection('help')" class="nav-item" id="nav-help">
+                <i class="fas fa-question-circle"></i> Bantuan dan Masukan
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="main-content">
         
-        <nav class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <div class="user-avatar" onclick="showPage('profile')" style="display:flex; align-items:center; justify-content:center; color:white; font-weight:bold;">S</div>
-                    <b>Menu Utama</b>
+        <!-- SECTION: HOME (CHAT) -->
+        <section id="section-home" class="section active-section">
+            <!-- Chat List -->
+            <div class="chat-list" id="chatList">
+                <div class="chat-item active-chat" onclick="selectChat('Budi Santoso', 'https://picsum.photos/seed/budi/50/50')">
+                    <img src="https://picsum.photos/seed/budi/50/50" alt="Avatar" class="avatar">
+                    <div class="chat-info">
+                        <h4>Budi Santoso</h4>
+                        <p>Halo, apa kabar? Lama tak jumpa!</p>
+                    </div>
                 </div>
-                <div class="nav-icons" onclick="toggleSidebar()">✖</div>
+                <div class="chat-item" onclick="selectChat('Siti Aminah', 'https://picsum.photos/seed/siti/50/50')">
+                    <img src="https://picsum.photos/seed/siti/50/50" alt="Avatar" class="avatar">
+                    <div class="chat-info">
+                        <h4>Siti Aminah</h4>
+                        <p>Dokumen sudah saya kirim ya.</p>
+                    </div>
+                </div>
+                <div class="chat-item" onclick="selectChat('Tim Proyek', 'https://picsum.photos/seed/tim/50/50')">
+                    <img src="https://picsum.photos/seed/tim/50/50" alt="Avatar" class="avatar">
+                    <div class="chat-info">
+                        <h4>Tim Proyek</h4>
+                        <p>Meeting pukul 14.00 jangan lupa.</p>
+                    </div>
+                </div>
             </div>
 
-            <div class="menu-list">
-                <div class="menu-item active-menu" onclick="showPage('home')">
-                    <i>💬</i> <span class="menu-text">Home (Pesan)</span>
-                </div>
-                <div class="menu-item" onclick="showPage('notifications')">
-                    <i>🔔</i> <span class="menu-text">Notifikasi</span>
-                </div>
-                <div class="menu-item" onclick="showPage('profile')">
-                    <i>👤</i> <span class="menu-text">Profil Saya</span>
-                </div>
-                
-                <div style="padding:15px; font-size:12px; color:gray; font-weight:bold;">PENGATURAN</div>
-                
-                <div class="menu-item" onclick="showPage('privacy')">
-                    <i>🔒</i> <span class="menu-text">Privasi</span>
-                </div>
-                <div class="menu-item" onclick="showPage('storage')">
-                    <i>💾</i> <span class="menu-text">Penyimpanan Data</span>
-                </div>
-                <div class="menu-item" onclick="showPage('language')">
-                    <i>🌍</i> <span class="menu-text">Bahasa</span>
-                </div>
-                <div class="menu-item" onclick="showPage('accessibility')">
-                    <i>👓</i> <span class="menu-text">Aksesibilitas</span>
-                </div>
-                
-                <div style="padding:15px; font-size:12px; color:gray; font-weight:bold;">LAINNYA</div>
-
-                <div class="menu-item" onclick="showPage('updates')">
-                    <i>🔄</i> <span class="menu-text">Pembaharuan Aplikasi</span>
-                </div>
-                <div class="menu-item" onclick="showPage('help')">
-                    <i>❓</i> <span class="menu-text">Bantuan & Masukan</span>
-                </div>
-                <div class="menu-item" onclick="showPage('about')">
-                    <i>ℹ️</i> <span class="menu-text">Tentang Kami</span>
-                </div>
-            </div>
-        </nav>
-
-        <main class="main-content">
-            
-            <div id="home" class="page-section active" style="padding:0; display:flex; flex-direction:column; height:100%;">
-                <div class="chat-header">
-                    <div class="mobile-toggle" onclick="toggleSidebar()">☰</div>
-                    <div class="user-avatar" style="width:35px; height:35px; margin-right:10px;"></div>
-                    <div>
-                        <div style="font-weight:bold;">Grup Diskusi</div>
-                        <div style="font-size:12px; color:gray;">Budi, Siti, Anda...</div>
+            <!-- Chat Window -->
+            <div class="chat-window active" id="chatWindow">
+                <div class="chat-messages" id="messageContainer">
+                    <div class="message received">
+                        Halo, apa kabar? Lama tak jumpa!
+                        <span class="message-time">10:30</span>
+                    </div>
+                    <div class="message sent">
+                        Kabar baik! Kamu gimana?
+                        <span class="message-time">10:31</span>
                     </div>
                 </div>
-                
-                <div class="chat-area" id="chatArea">
-                    <div class="message msg-in">
-                        Halo semuanya, selamat datang di aplikasi ChatConnect!
-                        <span class="msg-time">09:00</span>
-                    </div>
-                    <div class="message msg-in">
-                        Tampilannya bersih banget ya.
-                        <span class="msg-time">09:01</span>
-                    </div>
-                    <div class="message msg-out">
-                        Iya, ini versi siap publish untuk frontend.
-                        <span class="msg-time">09:05</span>
-                    </div>
-                </div>
-
                 <div class="chat-input-area">
-                    <button style="font-size:20px; border:none; background:none;">😊</button>
-                    <input type="text" class="chat-input" id="msgInput" placeholder="Ketik pesan..." onkeypress="handleEnter(event)">
-                    <button class="btn-send" onclick="sendMessage()">➤</button>
+                    <i class="far fa-smile fa-lg text-gray"></i>
+                    <i class="fas fa-paperclip fa-lg text-gray"></i>
+                    <input type="text" class="chat-input" id="messageInput" placeholder="Ketik pesan..." onkeypress="handleEnter(event)">
+                    <button class="btn-send" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
                 </div>
             </div>
+        </section>
 
-            <div id="profile" class="page-section">
-                <h2 class="page-title">Profil Saya</h2>
-                <div style="text-align:center; margin-bottom:30px;">
-                    <div style="width:100px; height:100px; background:#ddd; border-radius:50%; margin:0 auto 15px;"></div>
-                    <button class="btn btn-primary">Ganti Foto</button>
-                </div>
-                <div class="settings-group">
-                    <div class="settings-label">Nama Pengguna</div>
-                    <input type="text" value="User ChatConnect" style="width:100%; padding:10px; margin-top:5px;">
-                </div>
-                <div class="settings-group">
-                    <div class="settings-label">Info (Status)</div>
-                    <input type="text" value="Ada untuk bekerja" style="width:100%; padding:10px; margin-top:5px;">
-                </div>
+        <!-- SECTION: PROFIL -->
+        <section id="section-profile" class="section">
+            <h2>Profil Pengguna</h2>
+            <div class="card" style="text-align: center;">
+                <img src="https://picsum.photos/seed/me/150/150" alt="My Profile" style="border-radius: 50%; width: 100px; height: 100px; margin-bottom: 15px;">
+                <h3>Nama Pengguna</h3>
+                <p style="color: var(--text-gray); margin-bottom: 20px;">+62 812 3456 7890</p>
+                <button class="btn btn-primary">Ganti Foto Profil</button>
             </div>
 
-            <div id="notifications" class="page-section">
-                <h2 class="page-title">Notifikasi</h2>
-                <div class="settings-row">
-                    <div>
-                        <div class="settings-label">Suara Pesan Masuk</div>
-                        <span class="settings-desc">Mainkan suara saat pesan diterima</span>
-                    </div>
-                    <input type="checkbox" checked>
+            <div class="card">
+                <div class="form-group">
+                    <label>Nama</label>
+                    <input type="text" class="form-control" value="Nama Pengguna">
                 </div>
-                <div class="settings-row">
-                    <div>
-                        <div class="settings-label">Tampilkan Pratinjau</div>
-                        <span class="settings-desc">Lihat isi pesan di notifikasi bar</span>
-                    </div>
-                    <input type="checkbox" checked>
+                <div class="form-group">
+                    <label>Tentang Saya</label>
+                    <input type="text" class="form-control" value="Hai, saya ada di ChatConnect">
+                </div>
+                <button class="btn btn-primary" onclick="showToast('Profil diperbarui')">Simpan</button>
+            </div>
+        </section>
+
+        <!-- SECTION: TENTANG KAMI -->
+        <section id="section-about" class="section">
+            <h2>Tentang Kami</h2>
+            <div class="card">
+                <p><strong>ChatConnect v1.0.0</strong></p>
+                <p style="margin-top: 10px;">
+                    ChatConnect adalah platform komunikasi digital yang aman dan cepat. Kami didedikasikan untuk menghubungkan orang-orang di seluruh dunia tanpa batas.
+                    Misi kami adalah menyediakan layanan pesan yang sederhana, andal, dan menghargai privasi pengguna.
+                </p>
+                <br>
+                <p>Dikembangkan dengan ❤️ oleh Tim ChatOnline.</p>
+                <br>
+                <p>&copy; 2026 ChatConnect Inc. Hak Cipta Dilindungi.</p>
+            </div>
+        </section>
+
+        <!-- SECTION: NOTIFIKASI -->
+        <section id="section-notifications" class="section">
+            <h2>Notifikasi</h2>
+            <div class="card">
+                <div class="toggle-row">
+                    <span>Notifikasi Pesan</span>
+                    <label class="switch">
+                        <input type="checkbox" checked onchange="showToast('Pengaturan notifikasi disimpan')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span>Notifikasi Grup</span>
+                    <label class="switch">
+                        <input type="checkbox" checked onchange="showToast('Pengaturan notifikasi disimpan')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span>Suara Panggilan Masuk</span>
+                    <label class="switch">
+                        <input type="checkbox" checked onchange="showToast('Pengaturan notifikasi disimpan')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span>Getar</span>
+                    <label class="switch">
+                        <input type="checkbox" onchange="showToast('Pengaturan notifikasi disimpan')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span>Preview Pesan di Layar Terkunci</span>
+                    <label class="switch">
+                        <input type="checkbox" onchange="showToast('Pengaturan notifikasi disimpan')">
+                        <span class="slider"></span>
+                    </label>
                 </div>
             </div>
+        </section>
 
-            <div id="privasi" class="page-section">
-                <h2 class="page-title">Privasi</h2>
-                <div class="settings-row">
-                    <div class="settings-label">Terakhir Dilihat (Last Seen)</div>
-                    <select><option>Semua Orang</option><option>Kontak Saya</option><option>Tidak Ada</option></select>
+        <!-- SECTION: PRIVASI -->
+        <section id="section-privacy" class="section">
+            <h2>Privasi</h2>
+            <div class="card">
+                <div class="toggle-row">
+                    <span>Tampilkan Foto Profil</span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
                 </div>
-                <div class="settings-row">
-                    <div class="settings-label">Laporan Dibaca (Centang Biru)</div>
-                    <input type="checkbox" checked>
+                <div class="toggle-row">
+                    <span>Tampilkan Status Terakhir Dilihat</span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
                 </div>
-                <div class="settings-row">
-                    <div class="settings-label">Kunci Aplikasi (Fingerprint)</div>
-                    <input type="checkbox">
+                <div class="toggle-row">
+                    <span>Read Receipts (Centang Biru)</span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
                 </div>
             </div>
-
-            <div id="storage" class="page-section">
-                <h2 class="page-title">Penyimpanan & Data</h2>
-                <div class="settings-group">
-                    <div class="settings-label" style="margin-bottom:10px;">Penggunaan Penyimpanan</div>
-                    <div style="background:#eee; height:20px; border-radius:10px; overflow:hidden;">
-                        <div style="width:30%; background:var(--primary-color); height:100%;"></div>
-                    </div>
-                    <span class="settings-desc">300 MB terpakai dari 2 GB</span>
-                </div>
-                <div class="settings-row">
-                    <div class="settings-label">Unduh Otomatis Media</div>
-                    <input type="checkbox" checked>
-                </div>
-                <button class="btn btn-danger">Hapus Cache</button>
+            <div class="card">
+                <button class="btn btn-danger" onclick="showToast('Pengaturan privasi dikunci')">Kunci Akun</button>
             </div>
+        </section>
 
-            <div id="language" class="page-section">
-                <h2 class="page-title">Bahasa Aplikasi</h2>
-                <div class="settings-row">
-                    <div class="settings-label">Pilih Bahasa</div>
-                    <select>
-                        <option>Bahasa Indonesia (Dipilih)</option>
-                        <option>English (US)</option>
-                        <option>Jawa</option>
+        <!-- SECTION: PENYIMPANAN DATA -->
+        <section id="section-data" class="section">
+            <h2>Penyimpanan Data</h2>
+            <div class="card">
+                <p>Kelola penggunaan data dan penyimpanan media Anda.</p>
+                <div style="margin: 20px 0; background: #eee; height: 10px; border-radius: 5px;">
+                    <div style="width: 40%; background: var(--primary-color); height: 100%; border-radius: 5px;"></div>
+                </div>
+                <p style="font-size: 0.8rem;">1.2 GB dari 5 GB digunakan</p>
+                <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--border-color);">
+                <div class="toggle-row">
+                    <span>Gunakan Sedikit Data untuk Panggilan</span>
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span>Unduh Otomatis Media</span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="card">
+                <button class="btn btn-primary" onclick="showToast('Memeriksa ruang penyimpanan...')">Kelola Penyimpanan</button>
+                <button class="btn" style="background: #eee; margin-left: 10px;" onclick="showToast('Cache dibersihkan')">Bersihkan Cache</button>
+            </div>
+        </section>
+
+        <!-- SECTION: BAHASA -->
+        <section id="section-language" class="section">
+            <h2>Bahasa</h2>
+            <div class="card">
+                <div class="form-group">
+                    <label>Pilih Bahasa Aplikasi</label>
+                    <select class="form-control">
+                        <option value="id" selected>Indonesia</option>
+                        <option value="en">English</option>
+                        <option value="jv">Basa Jawa</option>
+                        <option value="su">Basa Sunda</option>
                     </select>
                 </div>
+                <button class="btn btn-primary" onclick="showToast('Bahasa diubah')">Terapkan</button>
             </div>
+        </section>
 
-            <div id="accessibility" class="page-section">
-                <h2 class="page-title">Aksesibilitas</h2>
-                <div class="settings-row">
-                    <div class="settings-label">Ukuran Font</div>
-                    <input type="range" min="1" max="3">
-                </div>
-                <div class="settings-row">
-                    <div class="settings-label">Mode Kontras Tinggi</div>
-                    <input type="checkbox">
-                </div>
-            </div>
-
-            <div id="updates" class="page-section">
-                <h2 class="page-title">Pembaharuan Aplikasi</h2>
-                <div style="text-align:center; padding:20px;">
-                    <img src="https://via.placeholder.com/100" alt="Logo" style="margin-bottom:10px;">
-                    <h3>Versi 1.0.2 (Terbaru)</h3>
-                    <p style="color:green; margin:10px 0;">Sistem Anda sudah diperbarui.</p>
-                    <button class="btn btn-primary">Cek Update Manual</button>
+        <!-- SECTION: BANTUAN DAN MASUKAN -->
+        <section id="section-help" class="section">
+            <h2>Bantuan dan Masukan</h2>
+            <div class="card">
+                <p>Temukan jawaban untuk pertanyaan umum atau hubungi kami.</p>
+                <div style="margin-top: 15px;">
+                    <a href="#" style="display: block; padding: 10px; border-bottom: 1px solid #eee; text-decoration: none; color: var(--text-dark);">Cara Mengirim Pesan</a>
+                    <a href="#" style="display: block; padding: 10px; border-bottom: 1px solid #eee; text-decoration: none; color: var(--text-dark);">Pusat Keamanan</a>
+                    <a href="#" style="display: block; padding: 10px; border-bottom: 1px solid #eee; text-decoration: none; color: var(--text-dark);">Hubungi Kami</a>
                 </div>
             </div>
-
-            <div id="help" class="page-section">
-                <h2 class="page-title">Bantuan & Masukan</h2>
-                <div class="settings-group">
-                    <div class="settings-label">Kirim Masukan</div>
-                    <textarea style="width:100%; height:100px; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;" placeholder="Jelaskan masalah Anda..."></textarea>
-                    <button class="btn btn-primary" style="margin-top:10px;">Kirim</button>
+            <div class="card">
+                <h3>Kirim Masukan</h3>
+                <div class="form-group" style="margin-top: 10px;">
+                    <textarea class="form-control" rows="4" placeholder="Tuliskan masukan Anda di sini..."></textarea>
                 </div>
-                <div class="settings-group">
-                    <h3>FAQ</h3>
-                    <ul style="margin-left:20px; color:var(--text-secondary); margin-top:10px;">
-                        <li>Bagaimana cara memblokir kontak?</li>
-                        <li>Kenapa notifikasi tidak muncul?</li>
-                    </ul>
+                <button class="btn btn-primary" onclick="showToast('Masukan terkirim')">Kirim</button>
+            </div>
+        </section>
+
+        <!-- SECTION: PEMBAHARUAN APLIKASI -->
+        <section id="section-updates" class="section">
+            <h2>Pembaharuan Aplikasi</h2>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h4>Versi Terbaru</h4>
+                        <p style="color: var(--text-gray); font-size: 0.9rem;">Versi 1.0.0 (Rilis Stabil)</p>
+                    </div>
+                    <i class="fas fa-check-circle fa-2x" style="color: var(--primary-color);"></i>
+                </div>
+                <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--border-color);">
+                <p>ChatConnect Anda sudah mutakhir. Anda akan menerima notifikasi ketika versi baru tersedia.</p>
+                <button class="btn btn-primary" style="margin-top: 15px;" onclick="showToast('Tidak ada pembaruan baru')">Cek Pembaruan</button>
+            </div>
+        </section>
+
+        <!-- SECTION: AKSESIBILITAS -->
+        <section id="section-accessibility" class="section">
+            <h2>Aksesibilitas</h2>
+            <div class="card">
+                <div class="toggle-row">
+                    <span>Mode Kontras Tinggi</span>
+                    <label class="switch">
+                        <input type="checkbox" id="contrastToggle" onchange="toggleHighContrast()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Ukuran Teks</label>
+                    <input type="range" min="1" max="5" value="1" class="form-control" oninput="changeFontSize(this.value)">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-gray); margin-top: 5px;">
+                        <span>Kecil</span>
+                        <span>Besar</span>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <div id="about" class="page-section">
-                <h2 class="page-title">Tentang Kami</h2>
-                <p><b>ChatConnect</b> adalah platform pengiriman pesan cepat yang mengutamakan privasi dan kemudahan penggunaan.</p>
-                <br>
-                <p>Dikembangkan oleh Tim Developer (Prototype).</p>
-                <p>© 2024 All Rights Reserved.</p>
-            </div>
+    </main>
 
-            <script>
-                // Logic Navigasi Halaman
-                function showPage(pageId) {
-                    // 1. Sembunyikan semua section
-                    document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
-                    
-                    // 2. Fix typo ID manual jika ada
-                    let targetId = pageId;
-                    if(pageId === 'privacy') targetId = 'privasi'; 
+    <script>
+        // --- Navigation Logic ---
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(sec => {
+                sec.classList.remove('active-section');
+            });
+            // Remove active class from nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
 
-                    // 3. Tampilkan section target
-                    const target = document.getElementById(targetId);
-                    if(target) target.classList.add('active');
+            // Show target section
+            document.getElementById('section-' + sectionId).classList.add('active-section');
+            
+            // Add active class to nav item (if it exists in sidebar)
+            const navItem = document.getElementById('nav-' + sectionId);
+            if(navItem) navItem.classList.add('active');
 
-                    // 4. Update Sidebar Active State
-                    document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active-menu'));
-                    // (Logic visual active state bisa disempurnakan dengan ID unik per menu)
-                    
-                    // 5. Tutup sidebar di mobile
-                    if(window.innerWidth <= 768) {
-                        document.getElementById('sidebar').classList.remove('open');
-                    }
-                }
+            // On mobile, close sidebar after selection
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        }
 
-                // Logic Kirim Pesan (Simulasi)
-                function sendMessage() {
-                    const input = document.getElementById('msgInput');
-                    const text = input.value.trim();
-                    
-                    if(text) {
-                        const chatArea = document.getElementById('chatArea');
-                        
-                        // Buat elemen pesan baru
-                        const div = document.createElement('div');
-                        div.className = 'message msg-out';
-                        
-                        // Waktu saat ini
-                        const now = new Date();
-                        const time = now.getHours() + ":" + String(now.getMinutes()).padStart(2, '0');
-                        
-                        div.innerHTML = `${text} <span class="msg-time">${time}</span>`;
-                        
-                        chatArea.appendChild(div);
-                        input.value = '';
-                        
-                        // Scroll ke bawah
-                        chatArea.scrollTop = chatArea.scrollHeight;
-                    }
-                }
+        // --- Mobile Sidebar Toggle ---
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
 
-                function handleEnter(e) {
-                    if(e.key === 'Enter') sendMessage();
-                }
+        // --- Chat Simulation Logic ---
+        function handleEnter(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        }
 
-                // Logic Sidebar Mobile
-                function toggleSidebar() {
-                    document.getElementById('sidebar').classList.toggle('open');
-                }
-            </script>
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (text !== "") {
+                const container = document.getElementById('messageContainer');
+                
+                // Create Message Bubble (Sent)
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message sent';
+                msgDiv.innerHTML = text + '<span class="message-time">Sekarang</span>';
+                
+                container.appendChild(msgDiv);
+                input.value = "";
+                
+                // Scroll to bottom
+                container.scrollTop = container.scrollHeight;
 
-        </main>
-    </div>
+                // Auto reply simulation after 1.5 seconds
+                setTimeout(() => {
+                    const replyDiv = document.createElement('div');
+                    replyDiv.className = 'message received';
+                    replyDiv.innerHTML = 'Terima kasih atas pesan Anda! (Otomatis)<span class="message-time">Sekarang</span>';
+                    container.appendChild(replyDiv);
+                    container.scrollTop = container.scrollHeight;
+                    showToast('Pesan baru diterima');
+                }, 1500);
+            }
+        }
 
+        function selectChat(name, imgUrl) {
+            // Visual feedback on chat list
+            const items = document.querySelectorAll('.chat-item');
+            items.forEach(item => item.classList.remove('active-chat'));
+            event.currentTarget.classList.add('active-chat');
+
+            // Update header (optional, not implemented fully for this showcase)
+            // In a real app, this would load conversation history
+            
+            // On mobile view, switch to chat window
+            if (window.innerWidth <= 768) {
+                document.getElementById('chatList').classList.remove('active');
+                document.getElementById('chatWindow').classList.add('active');
+            }
+        }
+        
+        // Mobile Back Button Logic (Implicitly handled by refreshing home or adding a back button, 
+        // but for simplicity here clicking 'Home' resets views)
+        const originalShowSection = showSection;
+        showSection = function(id) {
+            if(id === 'home' && window.innerWidth <= 768) {
+                document.getElementById('chatList').classList.add('active');
+                document.getElementById('chatWindow').classList.remove('active');
+            }
+            originalShowSection(id);
+        }
+
+        // --- Accessibility Logic ---
+        function toggleHighContrast() {
+            const isChecked = document.getElementById('contrastToggle').checked;
+            if (isChecked) {
+                document.body.classList.add('high-contrast');
+                showToast('Mode kontras tinggi aktif');
+            } else {
+                document.body.classList.remove('high-contrast');
+                showToast('Mode kontras tinggi non-aktif');
+            }
+        }
+
+        function changeFontSize(val) {
+            // Simple implementation: scale body font size slightly based on value
+            // 1 = 100% (16px), 5 = 120% (approx)
+            const scale = 1 + ((val - 1) * 0.05); 
+            document.body.style.fontSize = (16 * scale) + 'px';
+        }
+
+        // --- Utility: Toast Notification ---
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize: Ensure Home is visible logic on load
+        document.addEventListener('DOMContentLoaded', () => {
+            if(window.innerWidth > 768) {
+                document.getElementById('chatList').style.display = 'flex';
+                document.getElementById('chatWindow').style.display = 'flex';
+            } else {
+                document.getElementById('chatList').classList.add('active');
+            }
+        });
+        
+        // Window resize handler to fix chat layout
+        window.addEventListener('resize', () => {
+            if(window.innerWidth > 768) {
+                document.getElementById('chatList').style.display = 'flex';
+                document.getElementById('chatList').classList.remove('active');
+                document.getElementById('chatWindow').style.display = 'flex';
+                document.getElementById('chatWindow').classList.remove('active');
+            } else {
+                 // Reset to list view if switching to mobile from desktop
+                 document.getElementById('chatList').classList.add('active');
+                 document.getElementById('chatWindow').classList.remove('active');
+            }
+        });
+
+    </script>
 </body>
 </html>
