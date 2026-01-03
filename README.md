@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -630,13 +629,13 @@
             <div class="card">
                 <p><strong>ChatConnect v1.0.0</strong></p>
                 <p style="margin-top: 10px;">
-                    ChatConnect adalah platform komunikasi digital yang aman dan cepat. Kami didedikasikan untuk menghubungkan orang-orang di seluruh dunia tanpa batas.
+                    ChatOnline adalah platform komunikasi digital yang aman dan cepat. Kami didedikasikan untuk menghubungkan orang-orang di seluruh dunia tanpa batas.
                     Misi kami adalah menyediakan layanan pesan yang sederhana, andal, dan menghargai privasi pengguna.
                 </p>
                 <br>
                 <p>Dikembangkan dengan ❤️ oleh Tim ChatOnline.</p>
                 <br>
-                <p>&copy; 2026 ChatConnect Inc. Hak Cipta Dilindungi.</p>
+                <p>&copy; 2026 ChatOnline Inc. Hak Cipta Dilindungi.</p>
             </div>
         </section>
 
