@@ -21,6 +21,7 @@
             --warning: #f7bb07;
             --shadow: 0 2px 5px rgba(0,0,0,0.05);
             --transition: all 0.3s ease;
+            --ai-chat-bubble: #f0f2f5;
         }
 
         body.dark-theme {
@@ -32,6 +33,7 @@
             --text-gray: #aebac1;
             --border-color: #202c33;
             --white: #202c33;
+            --ai-chat-bubble: #202c33;
         }
 
         body.high-contrast {
@@ -43,6 +45,7 @@
             --border-color: #ffffff;
             --white: #000000;
             --check-read-color: #00ff00;
+            --ai-chat-bubble: #000000;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -82,92 +85,145 @@
         .security-icon { font-size: 4rem; color: var(--primary-color); margin-bottom: 20px; }
         .otp-input { letter-spacing: 8px; font-size: 1.5rem; text-align: center; font-weight: bold; }
 
-        /* --- AI SEARCH Section (UPDATED) --- */
+        /* --- AI CHAT Section (FINAL INTEGRATION) --- */
         #section-ai-search {
             background-color: var(--bg-color);
             flex-direction: column;
             overflow: hidden;
             background-image: none;
             background-blend-mode: normal;
-            padding: 20px;
+            padding: 0; /* Full height usage */
         }
         body.dark-theme #section-ai-search { background-color: #0b141a; }
         body.high-contrast #section-ai-search { background-color: #000000; }
 
-        .ai-container { 
+        .ai-interface { 
             background: var(--white); 
-            padding: 20px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            width: 100%; 
-            max-width: 800px; 
-            text-align: center; 
-            margin: 0 auto;
-            display: flex; flex-direction: column;
-            height: 100%;
-            border: 1px solid var(--border-color);
-        }
-        body.dark-theme .ai-container { background: var(--sidebar-bg); }
-        
-        .ai-icon { font-size: 3rem; background: linear-gradient(45deg, #008069, #00d4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
-        
-        .ai-search-input-wrapper {
             display: flex; 
-            gap: 10px; 
-            background: var(--bg-color); 
-            padding: 10px; 
-            border-radius: 50px; 
-            border: 1px solid var(--border-color); 
-            margin-top: 10px; 
+            flex-direction: column; 
+            height: 100%; 
+            width: 100%;
+        }
+        body.dark-theme .ai-interface { background: var(--sidebar-bg); }
+        
+        .ai-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
             align-items: center;
         }
-        .ai-search-input-wrapper i { color: var(--text-gray); font-size: 1.2rem; }
-        .ai-search-input-wrapper input { 
-            flex: 1; border: none; background: transparent; outline: none; font-size: 1rem; color: var(--text-dark); 
-        }
-        
-        .ai-btn { 
-            background: linear-gradient(45deg, #008069, #00d4ff); 
-            color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 1rem;
-            transition: transform 0.2s; display: flex; align-items: center; gap: 8px;
-        }
-        .ai-btn:hover { transform: scale(1.02); opacity: 0.95; }
 
-        /* AI Results Area (NEW) */
-        .ai-results-area {
-            flex: 1;
-            margin-top: 20px;
-            position: relative;
-            border-radius: 8px;
-            overflow: hidden;
+        .ai-provider-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .ai-tab-btn {
+            padding: 5px 15px;
+            border-radius: 20px;
             border: 1px solid var(--border-color);
-            background: #fff;
-            display: none; /* Hidden by default */
+            background: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
         }
-        body.dark-theme .ai-results-area { background: var(--sidebar-bg); border-color: var(--border-color); }
+        .ai-tab-btn:hover { background: var(--bg-color); }
+        .ai-tab-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
         
-        #aiFrame {
-            width: 100%;
-            height: 100%;
+        .ai-settings-btn {
+            background: none;
             border: none;
-            display: block;
+            cursor: pointer;
+            color: var(--text-gray);
+        }
+        .ai-settings-btn:hover { color: var(--primary-color); }
+
+        .ai-settings-panel {
+            display: none;
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-color);
+        }
+        .ai-settings-panel.active { display: block; }
+
+        .ai-chat-area {
+            flex: 1;
+            overflow-y: scroll;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
-        .ai-loader {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            display: none;
-            flex-direction: column;
+        .ai-message {
+            max-width: 80%;
+            padding: 15px;
+            border-radius: 12px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            position: relative;
+        }
+        .ai-message.user {
+            background-color: var(--primary-color);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+        .ai-message.ai {
+            background-color: var(--ai-chat-bubble);
+            color: var(--text-dark);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .ai-input-area {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-color);
+            background: var(--white);
+            display: flex;
             align-items: center;
             gap: 10px;
-            color: var(--text-gray);
-            z-index: 10;
         }
-        .ai-loader i { font-size: 2rem; color: var(--primary-color); animation: spin 1s linear infinite; }
-        @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+        body.dark-theme .ai-input-area { background: var(--sidebar-bg); }
 
-        /* --- Home: Tabs (Chat | Status | Calls) --- */
+        .ai-input-field {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: 1px solid var(--border-color);
+            outline: none;
+            background: var(--bg-color);
+            color: var(--text-dark);
+            font-size: 1rem;
+        }
+        .ai-send-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+        }
+        .ai-send-btn:hover { transform: scale(1.05); }
+
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 0.9rem; background: var(--white); color: var(--text-dark); margin-bottom: 10px; }
+
+        /* --- Home: Tabs --- */
         #section-home { display: none; flex-direction: row; overflow: hidden; position: relative; }
         #section-home.active-section { display: flex; }
         .left-panel { width: 400px; background: var(--white); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; position: relative; z-index: 10; }
@@ -179,17 +235,10 @@
         .tab-content { flex: 1; overflow-y: auto; display: none; }
         .tab-content.active { display: flex; flex-direction: column; }
 
-        /* Search Bar */
         .search-bar-container { padding: 10px; background: var(--white); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; }
         .search-input-wrapper { background: var(--bg-color); border-radius: 8px; padding: 5px 10px; display: flex; align-items: center; flex: 1; border: 1px solid var(--border-color); }
         .search-input-wrapper i { color: var(--text-gray); font-size: 0.9rem; }
         .search-bar-container input { border: none; background: transparent; width: 100%; outline: none; color: var(--text-dark); font-size: 0.9rem; }
-
-        /* --- Action Bar --- */
-        .chat-action-bar { padding: 10px 15px; background: var(--white); border-bottom: 1px solid var(--border-color); display: flex; gap: 10px; flex-wrap: wrap; }
-        .action-btn { flex: 1; padding: 8px; border: none; background: none; color: var(--text-dark); font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; border-radius: 5px; transition: background 0.2s; }
-        .action-btn:hover { background-color: var(--bg-color); }
-        .action-btn i { color: var(--primary-color); }
 
         /* Chat List */
         .chat-list-container { flex: 1; overflow-y: auto; }
@@ -202,36 +251,18 @@
         .chat-info h4 { font-size: 1rem; margin-bottom: 4px; }
         .chat-info p { font-size: 0.85rem; color: var(--text-gray); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
         
-        /* Message Star */
-        .star-icon { color: var(--text-gray); margin-left: 5px; cursor: pointer; }
-        .star-icon.starred { color: var(--warning); }
-
-        /* Chat Window */
+        /* --- Chat Window (Standard Chat) --- */
         .chat-window { flex: 1; display: flex; flex-direction: column; background-color: #efe7dd; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); position: relative; }
         body.dark-theme .chat-window, body.high-contrast .chat-window { background-color: var(--sidebar-bg); background-image: none; }
         
         .chat-header { padding: 10px 20px; background: var(--bg-color); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; z-index: 5; }
         .chat-header-actions i { margin-left: 15px; color: var(--primary-color); cursor: pointer; font-size: 1.2rem; }
 
-        .chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: scroll;
-            scroll-behavior: smooth;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 1;
-            
-            scrollbar-width: thin;
-            scrollbar-color: var(--text-gray) var(--bg-color);
-        }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: scroll; scroll-behavior: smooth; display: flex; flex-direction: column; gap: 10px; z-index: 1; scrollbar-width: thin; scrollbar-color: var(--text-gray) var(--bg-color); }
         body.dark-theme .chat-messages { scrollbar-color: var(--text-gray) var(--sidebar-bg); }
         .chat-messages::-webkit-scrollbar { width: 8px; }
         .chat-messages::-webkit-scrollbar-track { background: transparent; }
         .chat-messages::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.2); border-radius: 4px; }
-        .chat-messages::-webkit-scrollbar-thumb:hover { background-color: rgba(0,0,0,0.4); }
-
         .message { max-width: 80%; padding: 10px 15px; border-radius: 8px; position: relative; font-size: 0.95rem; line-height: 1.4; display: flex; flex-direction: column; word-wrap: break-word; }
         .message.received { background-color: var(--white); align-self: flex-start; border-top-left-radius: 0; }
         .message.sent { background-color: #dcf8c6; align-self: flex-end; border-top-right-radius: 0; }
@@ -262,7 +293,7 @@
         .btn-send { background: var(--primary-color); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
         .btn-send:hover { transform: scale(1.1); }
 
-        /* --- Modals (Generic) --- */
+        /* --- Modals --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; align-items: center; justify-content: center; }
         .modal-card { background: var(--white); width: 100%; max-width: 400px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; animation: slideUp 0.3s ease; }
         body.dark-theme .modal-card { background: var(--sidebar-bg); }
@@ -271,7 +302,6 @@
         .modal-body { padding: 20px; max-height: 70vh; overflow-y: auto; }
         .modal-footer { padding: 15px; border-top: 1px solid var(--border-color); text-align: right; }
 
-        /* Attachment Menu */
         .attach-menu-container { position: absolute; bottom: 70px; left: 20px; background-color: var(--white); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding: 15px; width: 300px; display: none; grid-template-columns: repeat(3, 1fr); gap: 15px; z-index: 999; }
         body.dark-theme .attach-menu-container { background-color: var(--sidebar-bg); }
         .attach-menu-container.active { display: grid; }
@@ -285,13 +315,11 @@
         .bg-doc { background-color: #f7bb07; color: #333; }
         .bg-audio { background-color: #00a884; }
 
-        /* Status Modal */
         .status-modal { width: 100%; max-width: 400px; height: 80vh; max-height: 700px; background: black; position: relative; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         .status-img { width: 100%; height: 100%; object-fit: contain; }
         .status-progress { position: absolute; top: 20px; left: 20px; right: 20px; height: 3px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; }
         .status-bar-fill { height: 100%; background: var(--white); width: 0%; }
 
-        /* Emoji Picker */
         .emoji-picker-container { position: absolute; bottom: 70px; right: 20px; background-color: var(--white); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding: 10px; width: 280px; display: none; flex-wrap: wrap; gap: 5px; z-index: 999; }
         body.dark-theme .emoji-picker-container { background-color: var(--sidebar-bg); }
         .emoji-picker-container.active { display: flex; }
@@ -299,10 +327,6 @@
         .emoji-btn:hover { background-color: rgba(0,0,0,0.1); }
 
         /* Form & Toggles */
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
-        .form-control { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 1rem; background: var(--white); color: var(--text-dark); }
-        .input-group { display: flex; gap: 10px; }
         .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
         .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -311,7 +335,7 @@
         input:checked + .slider { background-color: var(--primary-color); }
         input:checked + .slider:before { transform: translateX(26px); }
         
-        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: opacity 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--primary-color); color: white; width: 100%; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: opacity 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--primary-color); color: white; }
         .btn:hover { opacity: 0.9; }
         .btn-secondary { background: #f0f2f5; color: var(--text-dark); }
         .btn-danger { background-color: var(--danger); }
@@ -363,34 +387,6 @@
                     <small style="color: var(--text-gray); display: block; margin-top: 5px;">Simulasi: Masukkan kode <strong>123456</strong></small>
                 </div>
                 <button class="btn" onclick="verifyCode()"><i class="fas fa-check-circle"></i> Verifikasi</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION: AI SEARCH (UPDATED) -->
-    <section id="section-ai-search" class="section">
-        <div class="ai-container">
-            <i class="fas fa-brain ai-icon"></i>
-            <h2 style="border:none; margin-bottom: 15px;">Asisten Cerdas (AI Search)</h2>
-            <p style="color: var(--text-gray); margin-bottom: 20px;">
-                Terhubung langsung ke internet untuk mencari berita, informasi, atau apa saja.
-            </p>
-            
-            <div class="ai-search-input-wrapper">
-                <i class="fas fa-search"></i>
-                <input type="text" id="aiQueryInput" placeholder="Contoh: Berita terkini hari ini, Resep Nasi Goreng...">
-                <button class="ai-btn" onclick="searchAI()">
-                    <i class="fas fa-magic"></i> Cari Sekarang
-                </button>
-            </div>
-
-            <!-- Area Hasil (NEW) -->
-            <div class="ai-results-area" id="aiResultsArea">
-                <div class="ai-loader" id="aiLoader">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <span>AI sedang mencari...</span>
-                </div>
-                <iframe id="aiFrame" src="" allowfullscreen></iframe>
             </div>
         </div>
     </section>
@@ -462,7 +458,7 @@
         <div class="nav-menu">
             <div class="nav-category">Utama</div>
             <a onclick="showSection('home')" class="nav-item active" id="nav-home"><i class="fas fa-home"></i> Home</a>
-            <a onclick="showSection('ai-search')" class="nav-item" id="nav-ai-search"><i class="fas fa-brain"></i> AI Cari (Search)</a>
+            <a onclick="showSection('ai-search')" class="nav-item" id="nav-ai-search"><i class="fas fa-brain"></i> Asisten Cerdas</a>
             <a onclick="showSection('profile')" class="nav-item" id="nav-profile"><i class="fas fa-user"></i> Profil</a>
             <a onclick="showSection('about')" class="nav-item" id="nav-about"><i class="fas fa-info-circle"></i> Tentang Kami</a>
 
@@ -488,11 +484,11 @@
                     <div class="app-tab active" onclick="switchMainTab('chat')">Chat</div>
                     <div class="app-tab" onclick="switchMainTab('status')">Status</div>
                     <div class="app-tab" onclick="switchMainTab('calls')">Panggilan</div>
+                    <div class="app-tab" onclick="switchMainTab('ai-search')">AI Cari</div>
                 </div>
 
                 <!-- Tab 1: Chat -->
                 <div id="tab-chat" class="tab-content active">
-                    <!-- Search Bar -->
                     <div class="search-bar-container">
                         <div class="search-input-wrapper">
                             <i class="fas fa-search"></i>
@@ -506,24 +502,16 @@
                     </div>
                     
                     <div class="chat-list-container" id="chatList">
-                        <div class="chat-item active-chat" onclick="selectChat('Budi Santoso', 'https://picsum.photos/seed/budi/50/50', 'online')" id="chat-budi">
+                        <div class="chat-item active-chat" onclick="selectChat('Budi Santoso', 'https://picsum.photos/seed/budi/50/50', 'online')">
                             <div class="avatar-wrapper">
                                 <img src="https://picsum.photos/seed/budi/50/50" class="avatar">
                                 <div class="status-dot online"></div>
                             </div>
-                            <div class="chat-info">
-                                <h4>Budi Santoso</h4>
-                                <p>Halo, apa kabar? Lama tak jumpa!</p>
-                            </div>
+                            <div class="chat-info"><h4>Budi Santoso</h4><p>Halo, apa kabar? Lama tak jumpa!</p></div>
                         </div>
                         <div class="chat-item" onclick="selectChat('Siti Aminah', 'https://picsum.photos/seed/siti/50/50', 'offline')">
-                            <div class="avatar-wrapper">
-                                <img src="https://picsum.photos/seed/siti/50/50" class="avatar">
-                            </div>
-                            <div class="chat-info">
-                                <h4>Siti Aminah</h4>
-                                <p>Dokumen sudah saya kirim ya.</p>
-                            </div>
+                            <div class="avatar-wrapper"><img src="https://picsum.photos/seed/siti/50/50" class="avatar"></div></div>
+                            <div class="chat-info"><h4>Siti Aminah</h4><p>Dokumen sudah saya kirim ya.</p></div>
                         </div>
                     </div>
                 </div>
@@ -531,14 +519,8 @@
                 <!-- Tab 2: Status -->
                 <div id="tab-status" class="tab-content">
                     <div class="status-scroll">
-                        <div class="status-item" onclick="showToast('Fitur tambah status (demo)')">
-                            <div class="my-status"><i class="fas fa-plus"></i></div>
-                            <span class="status-name">Status Saya</span>
-                        </div>
-                        <div class="status-item" onclick="viewStatus('https://picsum.photos/seed/status1/400/800', 'Budi')">
-                            <div class="status-ring"><img src="https://picsum.photos/seed/budi/60/60"></div>
-                            <span class="status-name">Budi</span>
-                        </div>
+                        <div class="status-item" onclick="showToast('Fitur tambah status (demo)')"><div class="my-status"><i class="fas fa-plus"></i></div><span class="status-name">Status Saya</span></div>
+                        <div class="status-item" onclick="viewStatus('https://picsum.photos/seed/status1/400/800', 'Budi')"><div class="status-ring"><img src="https://picsum.photos/seed/budi/60/60"></div><span class="status-name">Budi</span></div>
                     </div>
                 </div>
 
@@ -546,13 +528,64 @@
                 <div id="tab-calls" class="tab-content">
                     <div class="call-item" onclick="startCall('Budi Santoso', 'video', 'https://picsum.photos/seed/budi/150/150')">
                         <div class="call-icon incoming" style="width: 40px; text-align: center; margin-right: 15px; font-size: 1.2rem; color: var(--primary-color);"><i class="fas fa-video"></i></div>
-                        <div class="call-info">
-                            <h4>Budi Santoso</h4>
-                            <div style="font-size:0.8rem;color:var(--text-gray);">Hari ini, 10:30</div>
-                        </div>
+                        <div class="call-info"><h4>Budi Santoso</h4><div style="font-size:0.8rem;color:var(--text-gray);">Hari ini, 10:30</div></div>
                         <i class="fas fa-video" style="color: var(--primary-color); cursor: pointer;"></i>
                     </div>
                 </div>
+
+                <!-- Tab 4: AI Search -->
+                <div id="tab-ai-search" class="tab-content">
+                    <div class="ai-container" style="background: transparent; box-shadow: none; padding: 20px; height: 100%; display: flex; flex-direction: column;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <h2 style="border:none; margin: 0; color: var(--primary-color);">Asisten Cerdas</h2>
+                            <p style="color: var(--text-gray);">Menggunakan data dari ChatGPT & Google Gemini</p>
+                        </div>
+
+                        <!-- AI Controls -->
+                        <div class="ai-chat-area" id="aiChatArea" style="flex: 1; background: transparent; overflow-y: hidden; display: flex; flex-direction: column; padding-bottom: 10px;">
+                            <!-- Welcome Message -->
+                            <div style="text-align: center; margin-top: auto; margin-bottom: auto; color: var(--text-gray);">
+                                <i class="fas fa-robot" style="font-size: 3rem; margin-bottom: 10px; color: var(--primary-color);"></i>
+                                <p>Halo! Saya adalah asisten AI Anda.<br>Silakan pilih penyedia dan masukkan API Key Anda untuk memulai koneksi langsung.</p>
+                                <button onclick="document.getElementById('aiSettingsPanel').classList.add('active')" style="margin-top: 15px; color: var(--primary-color); border: 1px solid var(--primary-color); background: transparent; padding: 8px 15px; border-radius: 20px; cursor: pointer;">Buka Pengaturan API</button>
+                            </div>
+                        </div>
+
+                        <div class="ai-input-area" style="background: transparent; border: none; padding: 0;">
+                            <button class="btn-icon" onclick="document.getElementById('aiSettingsPanel').classList.toggle('active')"><i class="fas fa-cog" style="font-size: 1.2rem;"></i></button>
+                            <input type="text" id="aiPrompt" class="ai-input-field" placeholder="Tanyakan sesuatu..." onkeypress="handleAiEnter(event)">
+                            <button class="btn-icon" onclick="clearAiChat()"><i class="fas fa-trash" style="font-size: 1rem;"></i></button>
+                            <button class="ai-send-btn" onclick="sendToAI()"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+
+                        <!-- API Settings Panel -->
+                        <div id="aiSettingsPanel" class="ai-settings-panel">
+                            <h3 style="font-size: 1rem; margin-bottom: 15px; color: var(--primary-color);">Konfigurasi AI</h3>
+                            
+                            <div class="ai-provider-tabs" style="margin-bottom: 15px;">
+                                <button id="btnChatGPT" class="ai-tab-btn active" onclick="switchAIProvider('chatgpt')"><i class="fas fa-comment-dots"></i> ChatGPT</button>
+                                <button id="btnGemini" class="ai-tab-btn" onclick="switchAIProvider('gemini')"><i class="fab fa-google"></i> Google Gemini</button>
+                            </div>
+
+                            <div id="setting-gpt">
+                                <label style="font-size: 0.85rem; color: var(--text-gray);">OpenAI API Key (sk-...)</label>
+                                <input type="password" id="apiKeyOpenAI" class="form-control" placeholder="sk-..." onchange="saveKey('openai', this.value)">
+                            </div>
+                            <div id="setting-gemini" style="display:none;">
+                                <label style="font-size: 0.85rem; color: var(--text-gray);">Google AI API Key (GEMINI_API_KEY)</label>
+                                <input type="password" id="apiKeyGemini" class="form-control" placeholder="AI..." onchange="saveKey('gemini', this.value)">
+                            </div>
+                            
+                            <p style="font-size: 0.75rem; color: var(--danger); margin-top: 10px;">
+                                <i class="fas fa-exclamation-triangle"></i> <strong>Keamanan:</strong> API Key disimpan di LocalStorage browser Anda. Tidak dikirim ke server kami.
+                            </p>
+                            <p style="font-size: 0.75rem; color: var(--text-gray); margin-top: 5px;">
+                                <i class="fas fa-info-circle"></i> Jika koneksi gagal (CORS Error), coba gunakan ekstensi browser atau server proxy.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- Chat Window (Right Panel) -->
@@ -560,10 +593,7 @@
                 <div class="chat-header">
                     <div style="display:flex; align-items:center;">
                         <i class="fas fa-arrow-left" onclick="backToList()" style="margin-right:10px; display:none; cursor:pointer;" id="mobileBackBtn"></i>
-                        <div>
-                            <h3 id="currentChatName">Budi Santoso</h3>
-                            <small id="currentChatStatus" style="color:var(--text-gray);">Online</small>
-                        </div>
+                        <div><h3 id="currentChatName">Budi Santoso</h3><small id="currentChatStatus" style="color:var(--text-gray);">Online</small></div>
                     </div>
                     <div class="chat-header-actions">
                         <i class="fas fa-video" onclick="startCall(currentChatName.innerText, 'video', '')"></i>
@@ -602,12 +632,11 @@
             </div>
         </section>
 
-        <!-- SECTION: AKUN -->
+        <!-- SECTIONS LAINNYA (RINGKAS) -->
         <section id="section-account" class="section">
             <h2>Akun</h2>
             <div class="card">
                 <div class="toggle-row"><span>Verifikasi Dua Langkah</span><label class="switch"><input type="checkbox" checked onchange="showToast('Status verifikasi diubah')"><span class="slider"></span></label></div>
-                <div class="toggle-row"><span>Kode Keamanan</span><label class="switch"><input type="checkbox" onchange="showToast('Status kode diubah')"><span class="slider"></span></label></div>
             </div>
             <div class="card">
                 <h3>Informasi Akun</h3>
@@ -619,32 +648,21 @@
                 <button class="btn btn-danger" style="width: 100%;" onclick="if(confirm('Apakah Anda yakin ingin menghapus akun?')) { alert('Akun dihapus (simulasi).'); location.reload(); }">Hapus Akun Saya</button>
             </div>
         </section>
-
-        <!-- SECTION: NOTIFIKASI -->
         <section id="section-notifications" class="section">
             <h2>Notifikasi</h2>
             <div class="card">
                 <h3>Pesan</h3>
                 <div class="toggle-row"><span>Notifikasi Popup</span><label class="switch"><input type="checkbox" checked onchange="showToast('Setting diubah')"><span class="slider"></span></label></div>
                 <div class="toggle-row"><span>Getar</span><label class="switch"><input type="checkbox" onchange="showToast('Setting diubah')"><span class="slider"></span></label></div>
-                <div class="toggle-row"><span>Pop-up Suara</span><label class="switch"><input type="checkbox" onchange="showToast('Setting diubah')"><span class="slider"></span></label></div>
             </div>
         </section>
-
-        <!-- SECTION: PRIVACY -->
         <section id="section-privacy" class="section">
             <h2>Privasi</h2>
             <div class="card">
                 <div class="toggle-row"><span>Blokir Pengguna</span><label class="switch"><input type="checkbox" id="blockToggle" onchange="toggleBlockUser()"><span class="slider"></span></label></div>
                 <div id="blockStatus" style="color:var(--danger); font-size:0.8rem; margin-top:5px; display:none;">Anda telah memblokir kontak ini.</div>
             </div>
-            <div class="card">
-                <div class="toggle-row"><span>Pesan Sementara (24 Jam)</span><label class="switch"><input type="checkbox" id="disappearToggle" onchange="toggleDisappear()"><span class="slider"></span></label></div>
-                <p style="font-size:0.8rem; color:var(--text-gray); margin-top:5px;">Pesan baru akan hilang dari chat setelah 24 jam.</p>
-            </div>
         </section>
-
-        <!-- SECTION: DATA -->
         <section id="section-data" class="section">
             <h2>Penyimpanan Data</h2>
             <div class="card">
@@ -655,8 +673,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- SECTION: PROFIL -->
         <section id="section-profile" class="section">
             <h2>Profil Pengguna</h2>
             <div class="card" style="text-align: center;">
@@ -668,22 +684,18 @@
             </div>
             <div class="card">
                 <div class="form-group"><label>Nama</label><div class="input-group"><input type="text" class="form-control" id="inputProfileName" value="Nama Pengguna"><button class="btn" onclick="saveProfileName()"><i class="fas fa-edit"></i></button></div></div>
-                <div class="form-group"><label>Tambah Nomor</label><div class="input-group"><input type="text" class="form-control" id="inputProfilePhone" value="" placeholder="Ketik nomor baru..."><button class="btn" onclick="addPhoneNumber()"><i class="fas fa-plus"></i> Tambah</button></div></div>
                 <div class="form-group"><label>Tentang Saya</label><input type="text" class="form-control" value="Hai, saya ada di ChatConnect"></div>
             </div>
         </section>
-
-        <!-- SECTIONS LAINNYA (RINGKAS) -->
+        <section id="section-about" class="section"><h2>Tentang Kami</h2><div class="card"><p>ChatConnect Ultimate v4.0</p></div></section>
         <section id="section-help" class="section">
             <h2>Bantuan</h2>
             <div class="card">
                 <h3>Pertanyaan Umum (FAQ)</h3>
-                <details style="margin-bottom:10px; cursor:pointer;"><summary style="font-weight:bold;">Bagaimana cara memblokir kontak?</summary><p style="margin-top:5px;font-size:0.9rem;">Masuk ke menu Pengaturan > Privasi > Blokir Pengguna.</p></details>
-                <details style="margin-bottom:10px; cursor:pointer;"><summary style="font-weight:bold;">Bagaimana cara membuat grup?</summary><p style="margin-top:5px;font-size:0.9rem;">Buka tab Chat, klik tombol "Buat Grup Baru", masukkan nama dan pilih anggota.</p></details>
+                <details style="margin-bottom:10px; cursor:pointer;"><summary style="font-weight:bold;">Bagaimana cara mengaktifkan AI?</summary><p style="margin-top:5px;font-size:0.9rem;">Masuk ke tab 'Asisten Cerdas', klik pengaturan, dan masukkan API Key ChatGPT atau Gemini Anda.</p></details>
             </div>
         </section>
         <section id="section-videos" class="section"><h2>Video</h2><div class="card"><iframe width="100%" height="200" src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></div></section>
-        <section id="section-about" class="section"><h2>Tentang Kami</h2><div class="card"><p>ChatConnect Ultimate v3.0</p></div></section>
 
     </main>
 
@@ -743,7 +755,7 @@
             document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active-chat'));
             event.currentTarget.classList.add('active-chat');
             currentChatName.innerText = name;
-            currentChatStatus.innerText = status === 'online' ? 'Online' : (status === 'group' ? 'Grup' : 'Terakhir dilihat hari ini');
+            currentChatStatus.innerText = status === 'online' ? 'Online' : 'Terakhir dilihat hari ini';
             if (window.innerWidth <= 768) {
                 document.getElementById('leftPanel').classList.remove('active');
                 document.getElementById('chatWindow').classList.add('active');
@@ -775,37 +787,172 @@
             }
         }
 
-        // --- AI SEARCH LOGIC (UPDATED) ---
-        function searchAI() {
-            const query = document.getElementById('aiQueryInput').value;
-            const resultsArea = document.getElementById('aiResultsArea');
-            const loader = document.getElementById('aiLoader');
-            const iframe = document.getElementById('aiFrame');
+        // --- AI CHAT LOGIC (GPT & GEMINI) ---
+        let aiProvider = 'chatgpt'; // 'chatgpt' or 'gemini'
+        
+        // Load keys from storage
+        document.addEventListener('DOMContentLoaded', () => {
+            loadKey('openai');
+            loadKey('gemini');
+            if(window.innerWidth > 768) { document.getElementById('chatWindow').style.display = 'flex'; }
+        });
+
+        function switchAIProvider(provider) {
+            aiProvider = provider;
+            document.querySelectorAll('.ai-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn' + provider.charAt(0).toUpperCase() + provider.slice(1)).classList.add('active');
             
-            if(query.trim() !== "") {
-                // Show loader and results area
-                resultsArea.style.display = 'block';
-                loader.style.display = 'flex';
-                iframe.src = 'about:blank'; // Reset iframe
-                
-                // Construct Google URL (Direct connection)
-                const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-                
-                // Simulate AI "Thinking" delay
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                    iframe.src = searchUrl; // Load real results
-                }, 1500);
-                
-            } else {
-                showToast("Masukkan kata kunci pencarian!");
+            document.getElementById('setting-gpt').style.display = provider === 'chatgpt' ? 'block' : 'none';
+            document.getElementById('setting-gemini').style.display = provider === 'gemini' ? 'block' : 'none';
+        }
+
+        function saveKey(provider, key) {
+            if (key.trim() !== "") {
+                localStorage.setItem('ai_key_' + provider, key);
+                showToast(`Kunci ${provider.toUpperCase()} tersimpan!`);
             }
         }
 
-        // --- MODAL LOGIC ---
+        function loadKey(provider) {
+            const key = localStorage.getItem('ai_key_' + provider);
+            if (key) {
+                if(provider === 'openai') document.getElementById('apiKeyOpenAI').value = key;
+                if(provider === 'gemini') document.getElementById('apiKeyGemini').value = key;
+            }
+        }
+
+        function handleAiEnter(e) { if(e.key === 'Enter') sendToAI(); }
+
+        function sendToAI() {
+            const prompt = document.getElementById('aiPrompt').value;
+            const chatArea = document.getElementById('aiChatArea');
+            
+            if(prompt.trim() === "") {
+                showToast("Masukkan pertanyaan untuk AI.");
+                return;
+            }
+
+            // Add user message bubble
+            appendAIMessage(prompt, 'user');
+            document.getElementById('aiPrompt').value = "";
+            
+            // Add loading indicator
+            const loadingId = 'loading-' + Date.now();
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'ai-message ai';
+            loadingDiv.id = loadingId;
+            loadingDiv.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Sedang berpikir...`;
+            loadingDiv.style.alignSelf = 'flex-start';
+            loadingDiv.style.border = '1px solid var(--border-color)';
+            chatArea.appendChild(loadingDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+
+            // API Key Check
+            const apiKey = aiProvider === 'chatgpt' 
+                ? document.getElementById('apiKeyOpenAI').value 
+                : document.getElementById('apiKeyGemini').value;
+
+            if (!apiKey) {
+                setTimeout(() => {
+                    loadingDiv.remove();
+                    // Simulation Mode if no key
+                    const simulatedResponses = [
+                        "Ini adalah mode simulasi. Saya mengerti tentang '" + prompt + "'. Tapi untuk menghubungkan AI sungguhan, harap masukkan API Key.",
+                        "Saya adalah asisten demo. Coba tanya hal lain untuk melihat respons.",
+                        "Fitur ini terhubung langsung ke internet jika API Key disediakan. Saat ini, saya berjalan dalam mode demo."
+                    ];
+                    const randomResponse = simulatedResponses[Math.floor(Math.random() * simulatedResponses.length)];
+                    appendAIMessage(randomResponse, 'ai');
+                }, 1500);
+                return;
+            }
+
+            // REAL API CONNECTION
+            fetchAIResponse(prompt, apiKey, loadingId)
+                .catch(error => {
+                    console.error(error);
+                    loadingDiv.remove();
+                    appendAIMessage("Gagal terhubung ke AI. Pastikan koneksi internet aman atau coba ekstensi browser (CORS).", 'ai');
+                });
+        }
+
+        async function fetchAIResponse(prompt, apiKey, loadingId) {
+            let url, headers, body;
+
+            if (aiProvider === 'chatgpt') {
+                url = 'https://api.openai.com/v1/chat/completions';
+                headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                };
+                body = JSON.stringify({
+                    model: "gpt-3.5-turbo",
+                    messages: [{ role: "user", content: prompt }]
+                });
+            } else if (aiProvider === 'gemini') {
+                url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+                headers = { 'Content-Type': 'application/json' };
+                body = JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }]
+                });
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: headers,
+                body: body
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            loadingDiv.remove();
+
+            let textResponse = "";
+            if (aiProvider === 'chatgpt') {
+                textResponse = data.choices[0].message.content;
+            } else {
+                textResponse = data.candidates[0].content.parts[0].text;
+            }
+
+            appendAIMessage(textResponse, 'ai');
+        }
+
+        function appendAIMessage(content, sender) {
+            const container = document.getElementById('aiChatArea');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `ai-message ${sender}`;
+            
+            // Render Markdown-like simple formatting (bold, newlines)
+            // Convert **bold** to <b>
+            let formattedContent = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            // Convert \n to <br>
+            formattedContent = formattedContent.replace(/\n/g, '<br>');
+
+            msgDiv.innerHTML = formattedContent;
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearAiChat() {
+            document.getElementById('aiChatArea').innerHTML = '';
+            // Reset to Welcome Message
+            const chatArea = document.getElementById('aiChatArea');
+            chatArea.innerHTML = `
+                <div style="text-align: center; margin-top: auto; margin-bottom: auto; color: var(--text-gray);">
+                    <i class="fas fa-robot" style="font-size: 3rem; margin-bottom: 10px; color: var(--primary-color);"></i>
+                    <p>Halo! Saya adalah asisten AI Anda.<br>Silakan pilih penyedia dan masukkan API Key Anda untuk memulai koneksi langsung.</p>
+                    <button onclick="document.getElementById('aiSettingsPanel').classList.add('active')" style="margin-top: 15px; color: var(--primary-color); border: 1px solid var(--primary-color); background: transparent; padding: 8px 15px; border-radius: 20px; cursor: pointer;">Buka Pengaturan API</button>
+                </div>
+            `;
+        }
+
+        // --- GENERAL LOGIC (MODAL, GROUP, ETC) ---
         function openNewGroupModal() {
             const list = document.getElementById('memberSelectionList'); list.innerHTML = '';
-            const members = [{name: "Budi Santoso", img: "https://picsum.photos/seed/budi/40/40"}, {name: "Siti Aminah", img: "https://picsum.photos/seed/siti/40/40"}];
+            const members = [{name: "Budi Santoso", img: "https://picsum.photos/seed/budi/40/40"}];
             members.forEach((m, idx) => {
                 const div = document.createElement('div'); div.className = 'member-list-item';
                 div.style.display = 'flex'; div.style.alignItems = 'center'; div.style.padding = '10px 0'; div.style.borderBottom = '1px solid var(--border-color)';
@@ -814,9 +961,9 @@
             });
             document.getElementById('newGroupModal').style.display = 'flex';
         }
+
         function confirmCreateGroup() {
-            const groupName = document.getElementById('groupNameInput').value;
-            if(!groupName) { showToast("Masukkan nama grup!"); return; }
+            const groupName = document.getElementById('groupNameInput').value; if(!groupName) { showToast("Masukkan nama grup!"); return; }
             const chatList = document.getElementById('chatList');
             const newItem = document.createElement('div'); newItem.className = 'chat-item';
             newItem.style.background = `linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)`;
@@ -828,25 +975,24 @@
                 appendMessage(`Selamat datang di grup ${groupName}`, 'received');
             };
             newItem.innerHTML = `<div class="avatar-wrapper"><img src="" class="avatar" style="opacity:0; pointer-events:none;"><div style="position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; background:rgba(0,0,0,0.2);">${groupName.charAt(0).toUpperCase()}</div></div><div class="chat-info"><h4>${groupName}</h4><p>Klik untuk mulai chat grup...</p></div>`;
-            chatList.insertBefore(newItem, chatList.children[0]);
-            closeModal('newGroupModal'); showToast("Grup berhasil dibuat!");
+            chatList.insertBefore(newItem, chatList.children[0]); closeModal('newGroupModal'); showToast("Grup berhasil dibuat!");
         }
+
         function openNewChatModal() {
             document.getElementById('newChatName').value = '';
             document.getElementById('newChatModal').style.display = 'flex';
         }
+
         function confirmNewChat() {
-            const name = document.getElementById('newChatName').value;
-            if(!name) { showToast("Masukkan nama kontak!"); return; }
+            const name = document.getElementById('newChatName').value; if(!name) { showToast("Masukkan nama kontak!"); return; }
             const chatList = document.getElementById('chatList');
             const newItem = document.createElement('div'); newItem.className = 'chat-item';
             newItem.onclick = function() { selectChat(name, 'https://picsum.photos/seed/'+name+'/50/50', 'offline'); };
             newItem.innerHTML = `<div class="avatar-wrapper"><img src="https://picsum.photos/seed/${name}/50/50" class="avatar"></div><div class="chat-info"><h4>${name}</h4><p>Pesan baru...</p></div>`;
-            chatList.insertBefore(newItem, chatList.children[0]);
-            closeModal('newChatModal'); showToast("Chat baru dimulai!"); newItem.click();
+            chatList.insertBefore(newItem, chatList.children[0]); closeModal('newChatModal'); showToast("Chat baru dimulai!"); newItem.click();
         }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }
         
         function sendMessage() {
@@ -876,7 +1022,7 @@
 
         function toggleAttachMenu() { document.getElementById('attachMenu').classList.toggle('active'); document.getElementById('emojiPicker').classList.remove('active'); }
         function toggleEmojiPicker() { document.getElementById('emojiPicker').classList.toggle('active'); document.getElementById('attachMenu').classList.remove('active'); }
-        
+
         // Microphone
         let isRecording = false;
         function toggleMicRecording() {
@@ -887,13 +1033,14 @@
                 isRecording = false; input.style.display = 'block'; btn.innerHTML = '<i class="fas fa-microphone"></i>'; btn.style.color = 'var(--text-gray)'; appendMessage('', 'voice');
             }
         }
+
         function sendLocation() { appendMessage('loc', 'location'); toggleAttachMenu(); }
         function sendContact() { appendMessage('https://picsum.photos/seed/contact/50/50', 'contact'); toggleAttachMenu(); }
         function handleImageUpload(input) { if(input.files && input.files[0]) { const reader = new FileReader(); reader.onload = function(e) { appendMessage(e.target.result, 'image'); }; reader.readAsDataURL(input.files[0]); } }
         function handleVideoUpload(input) { if(input.files && input.files[0]) { const file = input.files[0]; if(file.size > 20 * 1024 * 1024) { showToast("Video terlalu besar! Max 20MB."); return; } const reader = new FileReader(); reader.onload = function(e) { appendMessage(e.target.result, 'video'); showToast("Video terkirim"); }; reader.readAsDataURL(input.files[0]); } }
         function handleDocUpload(input) { if(input.files && input.files[0]) { appendMessage(input.files[0].name, 'doc'); showToast("Dokumen terkirim"); } }
         function handleAudioUpload(input) { if(input.files && input.files[0]) { appendMessage('', 'audio'); } }
-        
+
         // Camera
         function openCameraModal() { document.getElementById('cameraModal').style.display = 'flex'; }
         function openCamera(mode) {
@@ -904,7 +1051,7 @@
             closeModal('cameraModal');
         }
 
-        // --- Settings Logic ---
+        // Settings Logic
         function toggleBlockUser() {
             const isBlocked = document.getElementById('blockToggle').checked;
             document.getElementById('blockStatus').style.display = isBlocked ? 'block' : 'none';
@@ -915,25 +1062,44 @@
         function toggleDisappear() { showToast(document.getElementById('disappearToggle').checked ? 'Pesan sementara aktif (24 Jam)' : 'Pesan sementara non-aktif'); }
         function clearChat() { if(confirm('Apakah Anda yakin ingin menghapus semua pesan?')) { document.getElementById('messageContainer').innerHTML = ''; showToast('Obrolan dibersihkan.'); } }
         function exportChat() {
-            const messages = document.querySelectorAll('.message'); let textContent = "Export Chat - " + currentChatName.innerText + "\n\n";
-            messages.forEach(msg => { const type = msg.classList.contains('sent') ? 'Saya' : currentChatName.innerText; const content = msg.innerText.split('\n')[0]; textContent += `[${type}]: ${content}\n`; });
-            const blob = new Blob([textContent], { type: 'text/plain' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'chat-export.txt'; a.click(); URL.revokeObjectURL(url); showToast('Chat berhasil diekspor!');
+            const messages = document.querySelectorAll('.message');
+            let textContent = "Export Chat - " + currentChatName.innerText + "\n\n";
+            messages.forEach(msg => {
+                const type = msg.classList.contains('sent') ? 'Saya' : currentChatName.innerText;
+                const content = msg.innerText.split('\n')[0];
+                textContent += `[${type}]: ${content}\n`;
+            });
+            const blob = new Blob([textContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'chat-export.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Chat berhasil diekspor!');
         }
 
-        // --- Profile Logic ---
+        // Profile Logic
         function saveProfileName() {
-            const nameInput = document.getElementById('inputProfileName'); const displayName = document.getElementById('displayProfileName');
-            if (nameInput.value.trim() !== "") { displayName.innerText = nameInput.value; showToast('Nama berhasil disimpan!'); } else { showToast('Nama tidak boleh kosong'); }
-        }
-        function addPhoneNumber() {
-            const input = document.getElementById('inputProfilePhone'); const newNumber = input.value.trim(); const displayNumber = document.getElementById('displayProfilePhone');
-            if (newNumber) { displayNumber.innerText = newNumber; showToast('Nomor berhasil ditambahkan!'); input.value = ""; } else { showToast('Masukkan nomor terlebih dahulu'); }
+            const nameInput = document.getElementById('inputProfileName');
+            const displayName = document.getElementById('displayProfileName');
+            if (nameInput.value.trim() !== "") {
+                displayName.innerText = nameInput.value;
+                showToast('Nama berhasil disimpan!');
+            } else {
+                showToast('Nama tidak boleh kosong');
+            }
         }
         function handlePhotoUpload(event) {
             const file = event.target.files[0];
-            if(file) { const reader = new FileReader(); reader.onload = function(e) { document.getElementById('displayProfileImg').src = e.target.result; showToast('Foto diubah'); }; reader.readAsDataURL(file); }
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('displayProfileImg').src = e.target.result;
+                    showToast('Foto diubah');
+                };
+                reader.readAsDataURL(file);
+            }
         }
-
         function toggleDarkTheme() { document.body.classList.toggle('dark-theme'); showToast('Tema diubah'); }
         
         // Call/Status/Emoji Init
@@ -941,8 +1107,13 @@
         function initEmojiPicker() {
             const picker = document.getElementById('emojiPicker');
             emojis.forEach(emoji => {
-                const btn = document.createElement('button'); btn.className = 'emoji-btn'; btn.textContent = emoji;
-                btn.onclick = function() { document.getElementById('messageInput').value += emoji; };
+                const btn = document.createElement('button');
+                btn.className = 'emoji-btn';
+                btn.textContent = emoji;
+                btn.onclick = function() {
+                    document.getElementById('messageInput').value += emoji;
+                    document.getElementById('messageInput').focus();
+                };
                 picker.appendChild(btn);
             });
         }
@@ -971,29 +1142,44 @@
         function viewStatus(imgUrl, name) {
             document.getElementById('statusImage').src = imgUrl;
             document.getElementById('statusModal').style.display = 'flex';
-            const bar = document.getElementById('statusBar'); bar.style.width = '0%';
+            const bar = document.getElementById('statusBar');
+            bar.style.width = '0%';
             setTimeout(() => { bar.style.transition = 'width 5s linear'; bar.style.width = '100%'; }, 100);
-            setTimeout(() => { document.getElementById('statusModal').style.display = 'none'; bar.style.width = '0%'; }, 5100);
+            setTimeout(() => {
+                document.getElementById('statusModal').style.display = 'none';
+                bar.style.width = '0%';
+            }, 5100);
         }
         function closeStatusViewer() {
             document.getElementById('statusModal').style.display = 'none';
             const bar = document.getElementById('statusBar');
-            bar.style.transition = 'none'; bar.style.width = '0%';
+            bar.style.transition = 'none';
+            bar.style.width = '0%';
         }
-        function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
-            initEmojiPicker(); closeSettings();
-            // Security active by default in HTML
+            initEmojiPicker();
+            // Default provider
+            switchAIProvider('chatgpt'); 
         });
         window.addEventListener('resize', () => {
              if(window.innerWidth > 768) {
-                document.getElementById('leftPanel').classList.remove('active'); document.getElementById('leftPanel').style.display = 'flex';
-                document.getElementById('chatWindow').style.display = 'flex'; document.getElementById('chatWindow').classList.remove('active');
+                document.getElementById('leftPanel').classList.remove('active');
+                document.getElementById('leftPanel').style.display = 'flex';
+                document.getElementById('chatWindow').style.display = 'flex';
+                document.getElementById('chatWindow').classList.remove('active');
                 document.getElementById('mobileBackBtn').style.display = 'none';
             } else {
-                document.getElementById('leftPanel').classList.add('active'); document.getElementById('leftPanel').style.display = 'flex';
-                document.getElementById('chatWindow').classList.remove('active'); document.getElementById('chatWindow').style.display = 'none';
+                document.getElementById('leftPanel').classList.add('active');
+                document.getElementById('leftPanel').style.display = 'flex';
+                document.getElementById('chatWindow').classList.remove('active');
+                document.getElementById('chatWindow').style.display = 'none';
             }
         });
     </script>
